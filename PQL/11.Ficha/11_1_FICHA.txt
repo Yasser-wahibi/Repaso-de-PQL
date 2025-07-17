@@ -1,0 +1,19 @@
+CREATE OR REPLACE TRIGGER inser_CLI  after insert on tcliente for each ROW
+
+DECLARE
+contVEN number:=0;
+contPROV number:=0;
+
+begin 
+
+select COUNT(*) INTO contVEN  from TVENDEDOR where :new.vendedor=COD_VEN ; 
+select COUNT(*) INTO contPROV from TPROVINCIA where :new.CODIGO=TCLIENTE.PROVINCIA ; 
+
+    if contVEN=0 then 
+        RAISE_application_error(-20001, 'hay problemas con el vendedor');
+
+    elsif contPROV=0 then 
+         RAISE_application_error(-20002, 'hay problemas con la provincia');
+    end if;
+end;
+/

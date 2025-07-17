@@ -1,0 +1,36 @@
+DECLARE
+
+cursor ccliente is 
+    select nombre
+    from tcliente
+    where VENDEDOR='001';
+
+filacli ccliente%rowtype;
+
+
+Aes NUMBER;
+
+
+BEGIN
+
+
+
+open ccliente;
+
+    LOOP
+
+        fetch ccliente into filacli;
+        exit when ccliente%notfound;
+        Aes:= contarcar(filacli.nombre,'A');
+        for I in  1..Aes loop
+            dbms_output.PUT_line('nombre: ' || filacli.nombre);
+        end loop;   
+
+       
+
+
+    end loop;
+close ccliente;
+
+end;
+/

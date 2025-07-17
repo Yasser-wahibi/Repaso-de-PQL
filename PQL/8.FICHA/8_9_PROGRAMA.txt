@@ -1,0 +1,74 @@
+CREATE OR REPLACE PROCEDURE subirSALARIO(
+    dp empleado.num_dep%TYPE,
+    sa empleado.salario%TYPE,
+    porcen NUMBER
+) IS
+
+ 
+    CURSOR cempleado IS
+        SELECT * FROM EMPLEADO WHERE NUM_DEP = dp;
+
+    filadep cempleado%ROWTYPE;
+
+    error EXCEPTION;
+
+ 
+    dpExists NUMBER;
+
+   
+    min_sal EMPLEADO.SALARIO%TYPE;
+    max_sal EMPLEADO.SALARIO%TYPE;
+
+BEGIN
+    SELECT COUNT(*) INTO dpExists 
+    FROM DEPARTAMENTO 
+    WHERE NUM_DEPTO = dp;
+
+    IF dpExists = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('EL DEPARTAMENTO NO EXISTE');
+        RAISE error;
+    END IF;
+
+    SELECT MIN(SALARIO_MIN), MAX(SALARIO_MAX) 
+    INTO min_sal, max_sal 
+    FROM GRADO;
+
+
+    IF sa < min_sal OR sa > max_sal THEN
+        DBMS_OUTPUT.PUT_LINE('El salario es incorrecto, debe estar entre ' || min_sal || ' - ' || max_sal);
+        RAISE error;
+    END IF;
+
+
+
+    if porcen<0 then 
+
+    DBMS_OUTPUT.PUT_LINE(' El porcentaje es incorrecto');
+        RAISE error;
+    end if;
+
+
+    OPEN cempleado;
+    LOOP
+        FETCH cempleado INTO filadep;
+        EXIT WHEN cempleado%NOTFOUND;
+
+        IF sa > (filadep.salario * porcen) / 100 THEN
+            UPDATE EMPLEADO 
+            SET SALARIO = SALARIO + sa
+            WHERE NUM_EMP = filadep.NUM_EMP;
+        ELSE
+            UPDATE EMPLEADO 
+            SET SALARIO = SALARIO + (filadep.salario * porcen) / 100
+            WHERE NUM_EMP = filadep.NUM_EMP;
+        END IF;
+    END LOOP;
+    CLOSE cempleado;
+
+
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SUBSTR(SQLERRM, 1, 100));
+END;
+/

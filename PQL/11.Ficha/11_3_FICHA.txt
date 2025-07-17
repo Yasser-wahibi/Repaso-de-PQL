@@ -1,0 +1,25 @@
+CREATE OR REPLACE TRIGGER del_nuevos  after DELETE on nuevos for each ROW
+
+declare 
+
+contNu  number;
+contAn number;
+
+BEGIN
+
+select count(*) contNu from ANTIGUOS where :old.nombre= nombre;
+
+if contNu=0 then 
+        delete alum where nombre=:old.nombre;
+     dbms_output.put_line('Se ha borrado');
+      
+end if;
+
+
+
+
+end;
+/
+
+
+

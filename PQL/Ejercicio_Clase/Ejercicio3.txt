@@ -1,0 +1,15 @@
+
+CREATE or replace FUNCTION contarcar(CADENA VARCHAR2, CARACTER VARCHAR2)
+    RETURN NUMBER IS
+    CONT NUMBER(3) := 0;
+
+
+BEGIN
+    FOR I IN 1..LENGTH(CADENA) LOOP
+        IF SUBSTR(CADENA, I, 1) =CARACTER    THEN
+            CONT := CONT + 1;
+        END IF;
+    END LOOP;
+    RETURN CONT;
+END;
+/

@@ -1,0 +1,15 @@
+CREATE OR REPLACE TRIGGER cambiar_total
+AFTER LOGON ON DATABASE
+BEGIN
+
+  UPDATE c##scott.tprovincia
+  SET total_Compra = (
+    SELECT SUM(compras)
+    FROM c##scott.tcliente
+    WHERE provincia =codigo
+  )
+	where exists (select * from c##scott.tcliente
+	where codigo= provincia);
+
+END;
+/

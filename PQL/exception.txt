@@ -1,0 +1,31 @@
+declare
+
+NUM NUMBER;
+FILACLI TCLIENTE%ROWTYPE;
+begin
+
+select COMPRAS into NUM 
+	from tcliente;
+
+dbms_output.put_line(FILACLI.nombre);
+
+
+
+EXCEPTION
+
+	WHEN NO_DATA_FOUND THEN
+		dbms_output.put_line('ESE CLIENBTE NO EXISTE');
+
+
+	WHEN ZERO_DIVIDE THEN
+		dbms_output.put_line('nO SE PEUDE DIVIDIR ENTRE 0');
+
+--	WHEN TOO_MANY_ROWS THEN
+--	dbms_output.put_line('DEVUELVE DEMASIADAS TUCLAS, SOLO DEBE DEVOLVER 1 (ROPWTYPE)');
+
+	WHEN OTHERS THEN
+		dbms_output.put_line('SE HA PRODUCIDE LA EXCEPCION' || SQLERRM);
+
+
+end;
+/

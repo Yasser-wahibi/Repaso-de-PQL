@@ -1,0 +1,23 @@
+CREATE or replace PROCEDURE cadenaemple(cadena varchar2) is
+
+
+
+CURSOR emple IS 
+    SELECT nombre, num_emp
+    from EMPLEADO
+    where NOMBRE like '%'||upper(cadena )||'%' ;
+
+filaemp emple%Rowtype;
+
+
+begin
+open emple;
+        LOOP
+            fetch emple into filaemp;
+            exit when emple%notfound;
+            dbms_output.put_line('Nombre: ' || filaemp.nombre || 'numero: ' || filaemp.num_emp);
+        end LOOP;
+close emple;
+
+end;
+/

@@ -1,0 +1,26 @@
+DECLARE
+	
+	CURSOR EMPLEDEP IS
+		SELECT NUM_DEP, COUNT(*) CONT
+		FROM EMPLEADO
+		GROUP BY NUM_DEP;
+	EMPLE EMPLEDEP%ROWTYPE;
+	contemp number:=0; 
+	total contemp%type:=0;
+	
+BEGIN
+
+	select count(*)  into total  from empleado;
+
+	OPEN EMPLEDEP;
+	
+	LOOP
+		FETCH EMPLEDEP INTO  EMPLE;
+		EXIT WHEN EMPLEDEP%NOTFOUND or emple.num_dep>4; 
+		DBMS_OUTPUT.PUT_LINE('Hay '|| EMPLE.CONT ||'empleados en el departamento n· ' || emple.num_dep  );
+		contemp:=(contemp+emple.cont);
+	END LOOP;
+		DBMS_OUTPUT.PUT_LINE('Hay '|| (total-contemp) ||'en otros departamentos'  );
+CLOSE EMPLEDEP;
+END;
+/

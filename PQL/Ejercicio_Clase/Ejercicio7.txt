@@ -1,0 +1,8 @@
+create or replace procedure tipoNull() is
+begin
+
+	update   tcliente set tipo =null;
+	
+
+end;
+/

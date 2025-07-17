@@ -1,0 +1,54 @@
+create or replace procedure depDfault (dep empleado.num_dep%type, n empleado.salario%type default 800)is
+
+
+cursor cempleado IS
+    select nombre, num_emp,SALARIO,num_dep
+    from EMPLEADO;
+
+filaemp cempleado%rowtype;
+
+deperror EXCEPTION;
+nerror EXCEPTION;
+
+depexiste number(10);
+
+
+BEGIN
+
+SELECT count(*) into depexiste from empleado where NUM_DEP=dep;
+
+
+
+if depexiste<1 then 
+ raise deperror;
+
+elsif n <=0 then 
+
+raise nerror;
+end if;
+
+
+
+
+
+open cempleado;
+
+    loop 
+        fetch cempleado into filaemp;
+        exit when cempleado%notfound;
+        if filaemp.salario < n then 
+            update empleado set salario=n where num_emp=filaemp.num_emp and NUM_DEP=dep;
+        end if;
+         dbms_output.PUT_line('nombre: ' || filaemp.nombre || ',  departamento: ' || filaemp.num_dep ||  'salario: ' || filaemp.salario );
+    end loop;
+close cempleado;
+
+EXCEPTION
+    when nerror THEN
+        dbms_output.PUT_line('No se puede poner un salario negativo   ');
+    when deperror then 
+         dbms_output.PUT_line('el departamento no existe ');
+    when others then 
+         dbms_output.PUT_line('erroro desconocido   ' || sqlerrm);
+end;
+/

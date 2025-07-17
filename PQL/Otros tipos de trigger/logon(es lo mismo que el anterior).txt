@@ -1,0 +1,5 @@
+create or replace trigger cambiar_total after logon on database
+begin
+update c##scott.tprovincia set total_Compra=5000;
+end;
+/

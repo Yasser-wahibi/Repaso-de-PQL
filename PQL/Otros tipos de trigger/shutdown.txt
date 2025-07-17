@@ -1,0 +1,5 @@
+create or replace trigger apagon before  shutdown on database
+begin 
+	update c##scott.tcliente set tipo='JJ';
+end;
+/

@@ -1,0 +1,7 @@
+create or replace procedure contarhuecos(cadenba varchar2) is
+begin
+
+	dbms_ouput.pu_line('la caden atiene : ' || contarblancos(cadena) ||' huecos');
+
+end;
+/

@@ -1,0 +1,23 @@
+CREATE OR REPLACE PROCEDURE borrarEmple( Num  empleado.num_emp%type)  IS
+
+
+cont number:=0;
+FILAEMP EMPLEADO%ROWTYPE;
+BEGIN 
+SELECT * INTO FILAEMP
+	FROM EMPLEADO
+	WHERE NUM_EMP=NUM;
+	delete from empleado where num_emp=Num;
+
+	
+dbms_output.put_line('EL USUARIO : '|| FILAEMP.NOMBRE || 'sE HA ELIMINADO');
+
+
+EXCEPTION
+
+	WHEN NO_DATA_FOUND THEN
+		dbms_output.put_line('ESE EMPLEADO NO EXISTE, PRUEBA INTRODUCIOENDO CON OTRO NUMERO DE EMPLEADO');
+
+	
+END;
+/

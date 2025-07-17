@@ -1,0 +1,13 @@
+ACCEPT FRASE PROMPT 'eSCRBE UNA FRASE: '
+DECLARE
+
+FRASE VARCHAR2(100):='&FRASE';
+
+BEGIN
+
+DBMS_OUTPUT.PUT_LINE('LA FRASE TIENE ' ||CONTARBLANCOS(FRASE) || ' blancos , y tambien tiene ' ||(length(frase) - contarblancos(frase)) || ' caracteres no blancos ' );
+
+
+
+END;
+/

@@ -1,0 +1,8 @@
+create or replace procedure suma(num1 number, num2 number) is
+begin
+
+	DBMS_OUTPUT.PUT_LINE('LA SUMA ES: ' || (NUM1+NUM2));
+	
+
+end;
+/

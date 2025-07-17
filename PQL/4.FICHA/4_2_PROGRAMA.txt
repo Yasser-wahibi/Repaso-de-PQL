@@ -1,0 +1,32 @@
+ACCEPT palabra PROMPT '¿CUÁL ES LA PROVINCIA?';
+
+DECLARE
+    prov tprovincia.nombre%type := '&palabra';
+    
+    CURSOR ccliente IS
+        SELECT tipo, COUNT(*) AS cont
+        FROM tcliente
+        WHERE EXISTS (
+            SELECT *
+            FROM tprovincia
+            WHERE provincia = codigo
+              AND UPPER(nombre) = UPPER(prov)
+        )
+        GROUP BY tipo;
+        
+    ccli ccliente%ROWTYPE;
+
+BEGIN
+    OPEN ccliente;
+    
+    DBMS_OUTPUT.PUT_LINE('En la provincia ' || prov || ' hay:');
+    
+    LOOP
+        FETCH ccliente INTO ccli;
+        EXIT WHEN ccliente%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(ccli.cont || ' clientes de tipo ' || ccli.tipo || '.');
+    END LOOP;
+    
+    CLOSE ccliente;
+END;
+/

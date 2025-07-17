@@ -1,0 +1,11 @@
+CREATE or replace FUNCTION anio( fecha date)
+    RETURN NUMBER IS
+    anio NUMBER(5);
+BEGIN
+  
+	anio:=to_number(to_char(fecha,'YYYY'));
+
+
+    RETURN anio;
+END;
+/

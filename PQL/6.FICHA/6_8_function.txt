@@ -1,0 +1,10 @@
+create or replace function  trienio(fecha1 date, fecha2 date)
+	return number is
+
+begin	
+	
+
+
+	return trunc(vivo(fecha1, fecha2)/3);
+end;
+/

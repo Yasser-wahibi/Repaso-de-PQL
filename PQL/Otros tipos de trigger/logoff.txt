@@ -1,0 +1,7 @@
+create or replace trigger resetear_totalcompra before logoff on database
+begin
+
+update c##scott.tprovincia set total_Compra=0;
+
+end;
+/

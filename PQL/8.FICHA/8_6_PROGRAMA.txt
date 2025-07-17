@@ -1,0 +1,64 @@
+DECLARE
+
+
+    cursor CDEPAR IS
+        SELECT NUM_DEPTO,NOMBRE
+        FROM DEPARTAMENTO
+        ORDER BY NOMBRE;
+
+CDEP CDEPAR%ROWTYPE;
+
+    cursor CEMPLE IS
+        SELECT NOMBRE,SALARIO
+        FROM EMPLEADO
+        WHERE CDEP.NUM_DEPTO=NUM_DEP
+        ORDER BY SALARIO;
+        
+    filaemple CEMPLE%ROWTYPE;
+
+CONT NUMBER:=0;
+SALARIO NUMBER:=0;
+CONTEMPLETOTAL NUMBER:=0;
+SALARIOtOTAL NUMBER:=0;
+
+BEGIN
+
+    OPEN CDEPAR;
+        LOOP
+
+            FETCH CDEPAR INTO CDEP;
+            EXIT WHEN CDEPAR%NOTFOUND;
+
+                 OPEN CEMPLE;
+
+                    LOOP
+                        FETCH CEMPLE INTO filaemple;
+                        EXIT WHEN CEMPLE%NOTFOUND ; 
+                        DBMS_OUTPUT.PUT_LINE('NOMBRE: '||filaemple.NOMBRE ||CHR(9) ||  '*** SALARIO:  ' || filaemple.SALARIO);
+                        SALARIO:=SALARIO+ filaemple.SALARIO;
+                        CONT:= CONT+1;
+                    END LOOP;
+
+                CLOSE CEMPLE;  
+             
+            DBMS_OUTPUT.PUT_LINE('NOMBRE:    ' || CDEP.NOMBRE || '  , TOTAL DE PERSONAS :   ' ||  CONT || ' ,  SALARIO TOTAL DEL DEPRATAMENTO: ' || SALARIO || '$' );
+            DBMS_OUTPUT.PUT_LINE(CHR(13));
+            CONTEMPLETOTAL:=CONTEMPLETOTAL+ CONT;
+
+           SALARIOtOTAL:=SALARIOtOTAL+SALARIO;
+            CONT:=0;
+            SALARIO:=0;
+        END LOOP;
+            DBMS_OUTPUT.PUT_LINE(CHR(13));
+            DBMS_OUTPUT.PUT_LINE('TOTAL:    ' || CONTEMPLETOTAL ||' ,  SALARIO TOTAL:    ' || SALARIOtOTAL ||  '$');
+    CLOSE CDEPAR;
+
+
+
+
+
+
+
+
+END;
+/

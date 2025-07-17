@@ -1,0 +1,48 @@
+CREATE OR REPLACE TRIGGER AUDI_EMP
+AFTER DELETE OR INSERT OR UPDATE ON EMPLEADO
+FOR EACH ROW
+DECLARE
+    frase VARCHAR2(4000) := '';
+BEGIN
+    IF INSERTING THEN
+        INSERT INTO AUDITAREMPLEADO2 (USU, fec, EMP, NOM, OPER, VALORES)
+        VALUES (USER, SYSDATE, :NEW.NUM_EMP, :NEW.NOMBRE, 'INSERT', NULL);
+
+    ELSIF DELETING THEN
+        INSERT INTO AUDITAREMPLEADO2 (USU, fec, EMP, NOM, OPER, VALORES)
+        VALUES (USER, SYSDATE, :OLD.NUM_EMP, :OLD.NOMBRE, 'DELETE', NULL);
+
+    ELSIF UPDATING THEN
+        IF UPDATING('NOMBRE') THEN
+            frase := frase || 'nombre antiguo: ' || :OLD.NOMBRE || ' nombre nuevo: ' || :NEW.NOMBRE || '; ';
+        END IF;
+
+        IF UPDATING('PUESTO') THEN
+            frase := frase || 'puesto antiguo: ' || :OLD.PUESTO || ' puesto nuevo: ' || :NEW.PUESTO || '; ';
+        END IF;
+
+        IF UPDATING('NUM_EMP') THEN
+            frase := frase || 'num_emp antiguo: ' || :OLD.NUM_EMP || ' num_emp nuevo: ' || :NEW.NUM_EMP || '; ';
+        END IF;
+
+        IF UPDATING('SALARIO') THEN
+            frase := frase || 'SALARIO antiguo: ' || :OLD.SALARIO || ' SALARIO nuevo: ' || :NEW.SALARIO || '; ';
+        END IF;
+
+        IF UPDATING('COMISION') THEN
+            frase := frase || 'COMISION antigua: ' || :OLD.COMISION || ' COMISION nueva: ' || :NEW.COMISION || '; ';
+        END IF;
+
+        IF UPDATING('NUM_DEP') THEN
+            frase := frase || 'NUM_DEP antiguo: ' || :OLD.NUM_DEP || ' NUM_DEP nuevo: ' || :NEW.NUM_DEP || '; ';
+        END IF;
+
+        IF UPDATING('FECHA_ALTA') THEN
+            frase := frase || 'FECHA_ALTA antigua: ' || :OLD.FECHA_ALTA || ' FECHA_ALTA nueva: ' || :NEW.FECHA_ALTA || '; ';
+        END IF;
+
+        INSERT INTO AUDITAREMPLEADO2 (USU, fec, EMP, NOM, OPER, VALORES)
+        VALUES (USER, SYSDATE, :NEW.NUM_EMP, :NEW.NOMBRE, 'UPDATE', frase);
+    END IF;
+END;
+/

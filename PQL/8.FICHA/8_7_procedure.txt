@@ -1,0 +1,28 @@
+create or replace PROCEDURE inserDep(loc DEPARTAMENTO.localidad%ROWTYPE, nom DEPARTAMENTO.nombre%ROWTYPE) IS
+
+
+number departamento.NUM_DEPTO%TYPE;
+
+
+
+
+
+BEGIN
+
+        select max(NUM_DEPTO) 
+            into number 
+        from DEPARTAMENTO
+        ;
+
+insert into DEPARTAMENTO (NUM_DEPTO,nombre,localidad) values ( number ,nom,loc);
+dbms_output.put_line('Ya existe ese departamento');
+
+
+     EXCEPTION
+              when no_data_found then 
+                    insert into DEPARTAMENTO (NUM_DEPTO,nombre,localidad) values ( NUMBER +10-1 ,nom,loc);
+
+
+
+end;
+/

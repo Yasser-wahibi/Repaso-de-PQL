@@ -1,0 +1,13 @@
+CREATE or replace trigger no_mod_emp before update of nombre,num_sup,salario on empleado for each ROW
+
+BEGIN
+    if updating('nombre') then 
+        RAISE_application_error(-20001, 'Error has modificado el nombre');
+    elsif  updating('num_sup') then 
+          RAISE_application_error(-20002, 'Error has modificado el el superior');
+          --no es obligatorio poner el ultimo updating porque ya sabse que se esta modoificando el salario  
+    elsif updating('salario') and :old.salario*1.1<:new.salario then 
+        RAISE_application_error(-20003, 'Error has superado el 10% del sueldo');
+    end if;
+end;
+/ 

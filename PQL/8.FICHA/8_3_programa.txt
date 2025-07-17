@@ -1,0 +1,47 @@
+DECLARE
+
+cursor cempleado IS
+    select *
+    from EMPLEADO
+    ;
+
+filaemple cempleado%rowtype;
+jefe_mismo EXCEPTION;
+
+BEGIN
+
+    --  SELECT * INTO filaemple FROM empleado
+    --  WHERE NUM_SUP=NUM_EMP;
+
+
+
+    open cempleado;
+        LOOP
+    
+            FETCH cempleado into filaemple;
+            exit when cempleado%notfound;
+        BEGIN
+            if filaemple.NUM_EMP=filaemple.NUM_sup then 
+                
+           RAISE jefe_mismo;
+           
+           ELSE
+
+           dbms_output.PUT_LINE(filaemple.nombre);
+
+           end if;
+            EXCEPTION
+                when OTHERS THEN
+                    DBMS_OUTPUT.PUT_LINE(substr(sqlerrm,12,100));
+
+        END;
+
+        end loop;
+
+    close cempleado;
+
+
+
+
+end;
+/

@@ -1,0 +1,40 @@
+DECLARE
+    cursor emple IS
+        SELECT *
+        FROM EMPLEADO
+        ORDER BY PUESTO, SALARIO;
+        
+    filaemple emple%ROWTYPE;
+    puestoanterior EMPLEADO.PUESTO%TYPE;
+    CONT NUMBER := 0;  
+
+BEGIN
+    puestoanterior := '*';  
+    OPEN emple;
+
+    LOOP
+        FETCH emple INTO filaemple;
+        EXIT WHEN emple%NOTFOUND; 
+        
+       
+        IF puestoanterior != filaemple.PUESTO THEN
+            puestoanterior := filaemple.PUESTO;
+
+            CONT := 1;  
+                DBMS_OUTPUT.PUT_LINE('NOMBRE: '||filaemple.NOMBRE || ' ***PUESTO:  ' || filaemple.PUESTO || '*** SALARIO:  ' || filaemple.SALARIO);
+        ELSE
+        
+            IF CONT <= 2 THEN
+
+                CONT := CONT + 1;  
+
+                DBMS_OUTPUT.PUT_LINE('NOMBRE: '||filaemple.NOMBRE || ' ***PUESTO:  ' || filaemple.PUESTO || '*** SALARIO:  ' || filaemple.SALARIO);
+            END IF;
+
+        END IF;
+    END LOOP;
+
+    CLOSE emple;  
+
+END;
+/

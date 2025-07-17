@@ -1,0 +1,21 @@
+-- UPDATE OF COLUMAN1,COLUMAN2.. = SIGNIFIA QUE SE MODIFICARA UAN DE ESAS COLUMNAS O AMBAS
+CREATE or replace TRIGGER oper_ven after insert or delete or UPDATE OF TITULACION, PORCEN  ON tvendedor
+
+BEGIN
+
+-- esto solo devuelve true o false si hay una inserccion
+    if inserting then 
+        dbms_output.PUT_LINE('Se ha efectuado una insercion  en la tabla de tvendedor'); 
+
+    elsif deleting then 
+        dbms_output.PUT_LINE('Se ha efectuado un borrado  en la tabla de tvendedor'); 
+
+    ELSIF UPDATING('PORCEN') THEN 
+        dbms_output.PUT_LINE('Se ha efectuado una actualizacion  en la tabla de tvendedor SOBRE LA COLUMNA PORCEN'); 
+
+    else 
+        dbms_output.PUT_LINE('Se ha efectuado una actualizacion  en la tabla de tvendedor SOBRE LA COLUMNA TITULACION'); 
+    end if;
+
+end;
+/

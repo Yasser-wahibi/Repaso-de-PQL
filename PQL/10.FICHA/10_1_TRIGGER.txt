@@ -1,0 +1,21 @@
+CREATE OR REPLACE TRIGGER AUDI_EMP
+AFTER DELETE OR INSERT ON EMPLEADO
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN 
+        INSERT INTO AUDITAREMPLEADO 
+        VALUES (
+            USER || '***' || TO_CHAR(SYSDATE, 'DD/MM/YYYY') || '****' || 
+            TO_CHAR(SYSDATE, 'HH24:MI:SS') || '***' || :NEW.NUM_EMP || '***' || 
+            :NEW.NOMBRE || '***' || 'INSERTION'
+        );
+    ELSE
+        INSERT INTO AUDITAREMPLEADO 
+        VALUES (
+            USER || '***' || TO_CHAR(SYSDATE, 'DD/MM/YYYY') || '****' || 
+            TO_CHAR(SYSDATE, 'HH24:MI:SS') || '***' || :OLD.NUM_EMP || '***' || 
+            :OLD.NOMBRE || '***' || 'DELETE'
+        );
+    END IF;
+END;
+/

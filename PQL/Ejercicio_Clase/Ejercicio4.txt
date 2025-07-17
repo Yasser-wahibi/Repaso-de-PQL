@@ -1,0 +1,26 @@
+DECLARE
+	CURSOR EMPLEDEP IS
+	SELECT NOMBRE
+	FROM EMPLEADO
+	WHERE UPPER(PUESTO)='ANALISTA';
+EMPLE EMPLEDEP%ROWTYPE;
+
+BEGIN
+	OPEN EMPLEDEP;
+	LOOP
+		FETCH EMPLEDEP INTO EMPLE;
+		EXIT WHEN EMPLEDEP%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE(emple.nombre);
+		DBMS_OUTPUT.PUT_LINE('CUANTAS "A " TIENE?: '|| contarcar(emple.nombre,'A') );
+		 
+		DBMS_OUTPUT.PUT_LINE('CUANTAS "E " TIENE?: '|| contarcar(emple.nombre,'E') );
+		
+		DBMS_OUTPUT.PUT_LINE('CUANTAS "I " TIENE?: ' ||contarcar(emple.nombre,'I'));
+		 
+		DBMS_OUTPUT.PUT_LINE('CUANTAS "U " TIENE?: ' || contarcar(emple.nombre,'U') );
+		
+	END LOOP;
+	CLOSE EMPLEDEP;
+END;
+/
+	

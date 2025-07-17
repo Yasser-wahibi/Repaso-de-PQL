@@ -1,0 +1,11 @@
+DECLARE
+    I NUMBER(3) := 1;
+    factorial NUMBER := 1;
+BEGIN
+    WHILE I <= 100 LOOP
+        factorial := factorial * I;
+        DBMS_OUTPUT.PUT_LINE('El factorial de ' || I || ' es: ' || factorial);
+        I := I + 1;
+    END LOOP;
+END;
+/

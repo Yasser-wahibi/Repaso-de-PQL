@@ -1,0 +1,25 @@
+create or replace procedure mismosSalario (N number) is 
+
+    cursor cempleado is 
+        select salario,num_emp 
+        from empleado
+        order by SALARIO;
+
+filaemp cempleado%ROWTYPE;
+
+begin
+
+ open cempleado;
+         loop 
+                fetch cempleado into filaemp;
+                exit when cempleado%notfound or cempleado%rowcount>N;
+                update empleado set salario= 1111 
+                where  num_emp=filaemp.num_emp;                
+        end loop;
+
+ close cempleado;
+
+
+
+end;
+/

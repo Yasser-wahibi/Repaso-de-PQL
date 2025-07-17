@@ -1,0 +1,23 @@
+DECLARE
+
+cursor cempleado is 
+    select empleado.nombre,localidad
+    from empleado, DEPARTAMENTO
+    where num_dep=DEPARTAMENTO.NUM_DEPTO
+    and EXISTS (select * from GRADO
+                where salario BETWEEN Salario_min and salario_max
+                and grado=1)
+    order by empleado.SALARIO;
+
+filaemp cempleado%rowtype;
+BEGIN
+open cempleado;
+    LOOP
+        fetch cempleado into filaemp;
+        exit when cempleado%notfound;     
+        dbms_output.PUT_line('nombre: ' || filaemp.nombre || 'puesto: ' || filaemp.localidad );  
+  end loop;
+close cempleado;
+
+end;
+/

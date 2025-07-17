@@ -1,0 +1,303 @@
+1. Cursor simple con lógica condicional
+Crea un procedimiento llamado prc_calcular_comision que:
+
+Utilice un cursor para recorrer la tabla TVENDEDOR y para cada vendedor (NUM_VEN, NOMBRE, PORCEN, TITULACION, ZONA), verifique si la columna PORCEN está por debajo de un valor que tú consideres mínimo (por ejemplo, 5%).
+
+Si PORCEN es menor al mínimo, actualiza su valor a ese mínimo (por ejemplo, 5%).
+
+Muestra por pantalla (o utiliza DBMS_OUTPUT.PUT_LINE) el NUM_VEN y el nuevo valor de PORCEN tras la actualización.
+
+Asegúrate de manejar correctamente las excepciones y de emplear, si procede, bloques de transacción (COMMIT/ROLLBACK) para reflejar o deshacer los cambios.
+
+CREATE OR REPLACE PROCEDURE prc_calcular_comision
+IS 
+
+CURSOR CVENDEDOR IS
+    SELECT *
+    FROM TVENDEDOR;
+FILAVENDEDOR CVENDEDOR%ROWTYPE;
+MINIMO NUMBER :=5;
+BEGIN
+    OPEN CVENDEDOR;
+        LOOP
+            FETCH CVENDEDOR INTO FILAVENDEDOR;
+            EXIT WHEN CVENDEDOR%NOTFOUND;
+            --EN MI TABLA NO EXITE LA COLUMAN ZONA POR LO QUE CON ESTO YA ES SUFICIENTE
+            IF FILAVENDEDOR.PORCEN<MINIMO THEN
+                UPDATE TVENDEDOR SET PORCEN=MINIMO WHERE COD_VEN= FILAVENDEDOR.COD_VEN;
+            END IF;
+            dbms_OUTPUT.PUT_LINE('NOMBRE: '|| FILAVENDEDOR.NOM_VEN || 'CODIGO:' || FILAVENDEDOR.COD_VEN|| 'TITULACION: ' || FILAVENDEDOR.TITULACION || 'PORCEN: ' || FILAVENDEDOR.PORCEN);
+        END LOOP;
+    CLOSE CVENDEDOR;
+    -- NO TIENE QENTIDO HACCER UN EXCEPTION PORQUE NO EN SI EL CODIGO FUNCIONA BIEN 
+END;
+/
+
+
+
+
+
+
+
+2. Cursor doble (nested cursors) para generar un informe
+Crea una función llamada fn_informe_clientes que devuelva un VARCHAR2 (o CLOB, si quieres manejar un texto más largo).
+
+La función debe:
+
+Recorrer todos los vendedores en TVENDEDOR (cursor externo).
+
+Para cada vendedor, abrir un segundo cursor (cursor interno) que recorra todos los clientes en TCLIENTE cuyo campo VENDEDOR coincida con el NUM_VEN del cursor externo.
+
+Construir un texto con la siguiente estructura, por cada vendedor:
+
+Vendedor: <NUM_VEN> - <NOMBRE>
+----------------------------
+DNI Cliente | Nombre Cliente | Compras
+--------------------------------------
+<DNI>       | <NOMBRE>       | <COMPRAS>
+...
+Devuelve todo ese texto en la variable de salida de la función.
+
+Desde un bloque anónimo (o desde un procedimiento que llames prc_mostrar_informe), imprime el resultado de la función por pantalla o mediante DBMS_OUTPUT.PUT_LINE.
+
+CREATE OR REPLACE FUNCTION fn_informe_clientes 
+RETURN VARCHAR2 IS
+
+CURSOR CVENDEDOR IS
+    SELECT COD_VEN,NOM_VEN
+    FROM TVENDEDOR;
+FILAVENDEDOR CVENDEDOR%ROWTYPE;
+SALIDA VARCHAR2(3000):='';
+CURSOR CCLIENTE IS 
+    SELECT *
+    FROM TCLIENTE
+    WHERE FILAVENDEDOR.COD_VEN=VENDEDOR;
+FILACLIENTE CCLIENTE%ROWTYPE;
+BEGIN
+
+    OPEN CVENDEDOR;
+        LOOP
+            FETCH  CVENDEDOR INTO FILAVENDEDOR;
+            EXIT WHEN CVENDEDOR%NOTFOUND;
+            SALIDA:=SALIDA || 'Vendedor:' ||FILAVENDEDOR.COD_VEN ||' - '|| FILAVENDEDOR.NOM_VEN|| CHR(10);
+            SALIDA:=SALIDA||CHR(10) || 'DNI Cliente | Nombre Cliente | Compras'|| CHR(10);
+            SALIDA :=CHR(10)|| SALIDA || '----------------|-----------------------|---------' || CHR(10);
+                OPEN CCLIENTE;
+                    LOOP
+                        FETCH  CCLIENTE INTO FILACLIENTE;
+                        EXIT WHEN CCLIENTE%NOTFOUND;
+                       SALIDA:=SALIDA||FILACLIENTE.DNI|| '|' || FILACLIENTE.NOMBRE|| '|'  || FILACLIENTE.COMPRAS ||CHR(10);
+                    END LOOP;
+                CLOSE CCLIENTE;
+        END LOOP;
+    CLOSE CVENDEDOR;
+    RETURN SALIDA;
+END;
+/
+
+
+
+
+
+
+
+
+3. Trigger de registro de transacciones (AFTER INSERT/UPDATE)
+Crea un trigger sobre la tabla TVENTA que se dispare después de insertar o actualizar una fila.
+
+El trigger debe:
+
+Insertar en una tabla llamada, por ejemplo, TLOG_VENTAS (que tendrás que crear con campos como ID_LOG, NUM_VEN, FECHA_VENTA, CANTIDAD, ACCION, FECHA_LOG) la información del cambio:
+
+El NUM_VEN (vendedor que realizó la venta).
+
+La fecha de la venta (FECHA).
+
+La cantidad vendida (CANTIDAD).
+
+El tipo de acción: 'INSERT' o 'UPDATE'.
+
+La fecha y hora en la que se activa el trigger.
+
+Maneja las excepciones para que, en caso de fallo, se muestre un mensaje o se registre el error en otra tabla.
+
+
+-- EN MI TABLA DE VENTAS NO TENGO EL ID_LOG POR LO QUE NO LO HE PUESTO
+CREATE TABLE TLOG_VENTAS (
+    NUM_VEN CHAR(3),
+    FECHA_VENTA DATE,
+    cantidad number(5),
+    acccion varchar2(200),
+    fecha_activacion VARCHAR2(200)
+);
+
+CREATE OR REPLACE TRIGGER tventa_log after insert or UPDATE on tventa for EACH ROW
+DECLARE
+
+NUM_VEN TVENDEDOR.COD_VEN%TYPE;
+BEGIN
+    if INSERTING then 
+        SELECT VENDEDOR INTO NUM_VEN FROM TCLIENTE WHERE DNI= :NEW.CLIENTE;
+        INSERT INTO TLOG_VENTAS VALUES (NUM_VEN,:NEW.FECHA,:NEW.CANTIDAD, 'INSERCCION', TO_CHAR(SYSDATE,  'DD/MM/YYYY  HH24:MI:SS' ));
+    end if;
+
+        if UPDATING then 
+        SELECT VENDEDOR INTO NUM_VEN FROM TCLIENTE WHERE DNI= :NEW.CLIENTE;
+        INSERT INTO TLOG_VENTAS VALUES (NUM_VEN,:NEW.FECHA,:NEW.CANTIDAD, 'ACTUALIZACION', TO_CHAR(SYSDATE, 'DD/MM/YYYY  HH24:MI:SS'));
+    end if;
+end;
+/
+
+
+
+4. Trigger especiales: logon, logoff y shutdown
+Crea un trigger de logon a nivel de schema o de base de datos (dependiendo de los privilegios que tengas en el servidor) que:
+
+Inserte en una tabla llamada TSESIONES el nombre del usuario que inicia sesión, junto con la fecha y hora del logon.
+
+
+Crea un trigger de logoff que:
+
+Actualice esa misma tabla TSESIONES, marcando la fecha y hora de salida (logoff) para el usuario correspondiente.
+
+(Opcional, si tu SGBD y privilegios lo permiten) Crea un trigger de shutdown a nivel de base de datos que:
+
+Inserte un registro en una tabla llamada TSHUTDOWN_LOG indicando la fecha/hora en que la base de datos se cerró, y algún mensaje personal de auditoría (por ejemplo, 'Apagado del servidor iniciado').
+
+
+-- CREATE TABLE TSESIONES (
+--         USUARIO VARCHAR2(100),
+--         FECHA DATE,
+--         HORA VARCHAR2(100)
+-- );
+
+-- CREATE OR REPLACE TRIGGER TRIESP1 AFTER logon ON DATABASE
+-- DECLARE
+--     BEGIN
+--         INSERT INTO C##SCOTT.TSESIONES VALUES(USER,SYSDATE, TO_CHAR(SYSDATE ,'HH24:MI:SS'));
+--     END;
+-- /
+
+
+
+-- Crea un trigger de logoff que:
+
+-- Actualice esa misma tabla TSESIONES, marcando la fecha y hora de salida (logoff) para el usuario correspondiente.
+-- CREATE OR REPLACE TRIGGER TRIESP2 AFTER logon ON DATABASE
+-- DECLARE
+--     BEGIN
+--         INSERT INTO C##SCOTT.TSESIONES VALUES(USER,SYSDATE, TO_CHAR(SYSDATE ,'HH24:MI:SS') || '(LOGOOFF)' );
+--     END;
+-- /
+
+
+
+
+
+
+
+
+5. Paquete con procedimientos y funciones para controlar empleados
+Utilizando las tablas TEMPLEADO, TDEPARTAMENTO y TGRADO, haz lo siguiente:
+
+Crea un paquete llamado pkg_rrhh. En la especificación (pkg_rrhh.pks) declara:
+
+Un procedimiento prc_subir_sueldo que reciba como parámetros el NUM_EMP y un porcentaje de aumento.
+
+Una función fn_verificar_grado que reciba el NUM_EMP y devuelva el grado (columna GRADO de la tabla TGRADO) que le correspondería en función de su salario actual. Supón que para determinar el grado, debes comparar el salario del empleado con los valores SALARIO_MIN y SALARIO_MAX de TGRADO.
+
+Un procedimiento prc_asignar_grado que reciba NUM_EMP y asigne (mediante UPDATE en TEMPLEADO o en alguna tabla intermedia) el grado correspondiente, calculado por fn_verificar_grado.
+
+En el cuerpo del paquete (pkg_rrhh.pkb):
+
+Implementa la lógica de los subprogramas.
+
+En prc_subir_sueldo, realiza un UPDATE en TEMPLEADO para modificar el SALARIO.
+
+Opcionalmente, podrías también cambiar la COMISION en caso de que supere cierto límite.
+
+Realiza pruebas invocando estos subprogramas desde un bloque anónimo o desde una segunda rutina de test.
+
+
+
+
+
+
+
+
+6. Procedimiento con cursores y parámetros IN/OUT
+Crea un procedimiento llamado prc_generar_informe_provincias que reciba:
+
+Un parámetro p_min_total_compra de tipo NUMBER (IN).
+
+Un parámetro p_informe de tipo CLOB (OUT).
+
+El procedimiento debe:
+
+Recorrer la tabla TPROVINCIA mediante un cursor y seleccionar solo aquellas provincias que tengan un TOTAL_COMPRA mayor o igual que p_min_total_compra.
+
+Ir construyendo un texto (en una variable local de tipo CLOB o VARCHAR2 largo) con el formato:
+
+Código: <CODIGO>, Nombre: <NOMBRE>, Total Compras: <TOTAL_COMPRA>
+Asignar dicho texto a p_informe para que se pueda leer fuera del procedimiento.
+
+Desde un bloque anónimo, invoca prc_generar_informe_provincias pasándole un valor de ejemplo, y luego imprime el contenido de p_informe.
+
+CREATE OR REPLACE PROCEDURE prc_generar_informe_provincias(p_min_total_compra NUMBER) IS
+
+TEXTO VARCHAR2(2000):='';
+
+CURSOR CTPROVINCIA IS
+    SELECT *
+    FROM TPROVINCIA
+    WHERE TOTAL_COMPRA>=p_min_total_compra;
+FILATPROV CTPROVINCIA%ROWTYPE;
+
+BEGIN
+
+OPEN CTPROVINCIA;
+    LOOP
+        FETCH CTPROVINCIA INTO  FILATPROV;
+        EXIT WHEN  CTPROVINCIA%NOTFOUND;
+        TEXTO:=TEXTO|| 'CODIGO: ' || FILATPROV.CODIGO || '  Nombre: '    ||FILATPROV.NOMBRE ||  ' TOTAL_COMPRA:' ||FILATPROV.TOTAL_COMPRA ||CHR(10);
+
+    END LOOP;
+CLOSE CTPROVINCIA;
+
+DBMS_OUTPUT.PUT_LINE(TEXTO);
+
+
+    EXCEPTION
+        WHEN OTHERS THEN 
+        DBMS_OUTPUT.PUT_LINE('HAY UN PROBLEAMA'|| SQLERRM);
+
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+7. Cursor FOR UPDATE y WHERE CURRENT OF
+Crea un procedimiento prc_actualizar_stock que:
+
+Declare un cursor que seleccione de TARTICULO todos aquellos artículos cuyo STOCK sea inferior a 10 unidades.
+
+Abra el cursor con la sentencia FOR UPDATE (para bloquear las filas a modificar).
+
+A través de un bucle, para cada fila obtenida, realice un UPDATE a la misma fila usando la cláusula WHERE CURRENT OF, incrementando el valor de STOCK en una cantidad que definas (por ejemplo, +5 unidades).
+
+Asegúrate de realizar el COMMIT en el punto correcto, manejando posibles excepciones de concurrencia.
+
+8. Trigger INSTEAD OF (opcional, si manejas Vistas)
+En caso de que tengas una vista (por ejemplo, una vista llamada VW_EMPLEADOS_DEPTOS que une la tabla de empleados TEMPLEADO con la tabla de departamentos TDEPARTAMENTO), crea un trigger INSTEAD OF para manejar las operaciones INSERT, UPDATE o DELETE sobre la vista y que se traduzcan correctamente a operaciones sobre las tablas base.
+
+Por ejemplo, si en la vista insertas un nuevo empleado, el trigger debe hacer un INSERT en TEMPLEADO y no en la vista, ya que en Oracle un INSERT directo sobre la vista no funcionaría a menos que sea una vista actualizable.

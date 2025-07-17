@@ -1,0 +1,45 @@
+DECLARE
+
+ cursor CPUESTO IS
+        SELECT PUESTO
+        FROM EMPLEADO
+        GROUP BY PUESTO;
+
+CPUE CPUESTO%ROWTYPE;
+
+    cursor emple IS
+        SELECT NOMBRE,PUESTO,SALARIO
+        FROM EMPLEADO
+        WHERE CPUE.PUESTO=PUESTO
+        ORDER BY PUESTO, SALARIO;
+        
+    filaemple emple%ROWTYPE;
+
+
+    puestoanterior EMPLEADO.PUESTO%TYPE;
+    CONT NUMBER := 0;  
+
+BEGIN
+    puestoanterior := '*';  
+    OPEN CPUESTO;
+    LOOP
+        FETCH CPUESTO INTO CPUE;
+
+        EXIT WHEN CPUESTO%NOTFOUND; 
+        DBMS_OUTPUT.PUT_LINE(CHR(13));
+                        DBMS_OUTPUT.PUT_LINE('EMPLEADO DEL PUESTO : ' || CPUE.PUESTO);
+                        DBMS_OUTPUT.PUT_LINE(CHR(13));
+
+        OPEN emple;
+
+            LOOP
+                FETCH emple INTO filaemple;
+                EXIT WHEN emple%NOTFOUND OR EMPLE%ROWCOUNT >2; 
+                DBMS_OUTPUT.PUT_LINE('NOMBRE: '||filaemple.NOMBRE ||CHR(9) ||  '*** SALARIO:  ' || filaemple.SALARIO);
+            END LOOP;
+
+        CLOSE emple;  
+    END LOOP;
+    CLOSE CPUESTO;
+END;
+/

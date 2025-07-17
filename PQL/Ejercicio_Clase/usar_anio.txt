@@ -1,0 +1,22 @@
+declare
+	cursor ccliente is
+		select nombre,fecha_alta
+		from tcliente;
+	ccli ccliente%rowtype;
+begin
+
+
+open ccliente;
+	loop
+		fetch ccliente into ccli;
+		exit when ccliente%notfound;
+		dbms_output.put_line(ccli.nombre || 'es cliente de la empresa desde anio ' || anio(ccli.fecha_alta));	
+
+
+	end loop;
+close ccliente;
+
+
+
+end;
+/

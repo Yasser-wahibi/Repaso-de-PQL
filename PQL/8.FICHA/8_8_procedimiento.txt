@@ -1,0 +1,70 @@
+CREATE OR REPLACE PROCEDURE EMPALTA (
+    Nm empleado.Num_emp%TYPE, 
+    nom empleado.nombre%TYPE, 
+    pu   empleado.puesto%TYPE,  
+    ns    empleado.num_sup%TYPE,
+    fa    empleado.fecha_alta%TYPE, 
+    sa   empleado.salario%TYPE,
+    co  empleado.comision%TYPE,
+    nd empleado.num_dep%TYPE
+) IS
+    dep NUMBER;
+    emp NUMBER;
+    sup NUMBER;
+    error EXCEPTION;
+BEGIN
+
+    SELECT COUNT(*) 
+    INTO dep 
+    FROM DEPARTAMENTO
+    WHERE num_depto = nd;  
+
+
+    SELECT COUNT(*) 
+    INTO emp
+    FROM empleado
+    WHERE num_emp = Nm;
+
+
+    SELECT COUNT(*) 
+    INTO sup 
+    FROM EMPLEADO
+    WHERE num_emp = ns; 
+
+
+    IF dep = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('error: El departamento ' || nd || ' no existe en los departamentos.');
+        RAISE error;
+
+    ELSIF emp > 0 THEN
+        DBMS_OUTPUT.PUT_LINE('Error: El empleado con el numero de empleado ' || Nm || ' ya existe.');
+        RAISE error;
+
+    ELSIF sup = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('Error: El superior con el numero ' || ns || ' no existe en la tabla de empleados.');
+        RAISE error;
+
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Se ha agregado correctamente al empleado ' || Nm );
+
+
+        INSERT INTO empleado (
+            num_emp, 
+            nombre, 
+            puesto, 
+            num_sup, 
+            fecha_alta, 
+            salario, 
+            comision, 
+            num_dep
+        ) 
+        VALUES (
+            Nm, nom, pu, ns, fa, sa, co, nd
+        );
+    END IF;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE(SUBSTR(SQLERRM, 1, 100));
+END;
+/

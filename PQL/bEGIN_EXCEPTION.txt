@@ -1,0 +1,42 @@
+--prgrama que recorre totdos los vendedores y que genera una exepcion cuando se encuentra un vendedor que no encuenra superior
+
+DECLARE
+
+    CURSOR cvendedor IS
+    select *
+    from TVENDEDOR;
+
+filaven cvendedor%Rowtype;
+SIN_SUPERIOR EXCEPTION;
+BEGIN
+
+OPEN cvendedor;
+
+    LOOP
+
+        FETCH cvendedor into filaven;
+        exit when cvendedor%notfound;
+        BEGIN
+            IF filaven.superior is NOT null THEN
+                    DBMS_OUTPUT.PUT_LINE(FILAVEN.NOM_VEN);
+
+            ELSE
+                RAISE SIN_SUPERIOR ;
+            END IF;
+            EXCEPTION
+    WHEN SIN_SUPERIOR THEN
+   
+        DBMS_OUTPUT.PUT_LINE(FILAVEN.NOM_VEN || ' NO TIENE SUPERIOR');
+        END;
+
+    end loop;
+
+
+close cvendedor;
+EXCEPTION
+    WHEN SIN_SUPERIOR THEN
+   
+        DBMS_OUTPUT.PUT_LINE(FILAVEN.NOM_VEN || ' NO TIENE SUPERIOR');
+
+end;
+/

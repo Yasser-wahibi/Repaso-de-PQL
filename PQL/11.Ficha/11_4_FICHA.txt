@@ -1,0 +1,26 @@
+--DISPARADOR QUE IMPIDA BORRAR UNU ALMNMO DE LA TRABLA ALUM SI ESE ALUMNO ESTA EN LA TABLA NUEVOS O ESTA EN ;A TABLA ANTIGUOS
+create or replace TRIGGER del_alum BEFORE DELETE on alum for EACH ROW
+
+declare
+contAN number(1);  
+contNU number(1); 
+
+begin
+
+--cheackeamos que ese alumno este en nuevos
+select COUNT(*) into contAN from NUEVOS where nombre=:old.nombre;
+
+--cheackeamos que ese alumno este en antiguos
+select COUNT(*) into contNU from ANTIGUOS where nombre=:old.nombre;
+
+    if contAN>0 or contNU>0 then 
+            if contAN>0 then 
+                raise_application_error(-20001,'No se puede porque esta en la tabla  nuevos ');
+            else
+            raise_application_error(-20002,'No se puede porque esta en la tabla  antiguos ');
+            end if;
+
+    
+    end if;
+end;
+/

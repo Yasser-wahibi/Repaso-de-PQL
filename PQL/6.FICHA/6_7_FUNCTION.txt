@@ -1,0 +1,13 @@
+CREATE or replace FUNCTION vivo( fecha1 date, fecha2 date)
+    RETURN NUMBER IS
+    anio NUMBER(5);
+BEGIN
+ 	 
+		
+	 anio := trunc(abs(months_between(fecha1,fecha2))/12);
+	
+    RETURN anio;
+END;
+/
+
+

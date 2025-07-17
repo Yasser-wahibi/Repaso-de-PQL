@@ -1,0 +1,59 @@
+create or replace procedure subirmedio is
+
+
+cursor cpuesto is 
+    select PUESTO,avg(SALARIO) as "PROMEDIO"
+    from EMPLEADO
+    group by PUESTO;
+
+pues cpuesto%ROWTYPE;
+
+cursor cempleado is
+    select SALARIO,PUESTO, NUM_EMP,NOMBRE
+    from empleado
+    where puesto=pues.puesto;
+    
+filaemp cempleado%ROWTYPE;
+
+
+begin
+
+    open cpuesto;
+    loop
+        fetch cpuesto into pues;
+        exit when cpuesto%notfound;
+        DBMS_OUTPUT.put_line('Puesto: ' || pues.puesto);
+    
+
+            open cempleado;
+                loop 
+
+                    FETCH cempleado into filaemp;
+                    exit when cempleado%notfound;
+
+                    if filaemp.salario < pues.promedio  then 
+
+
+--la subida sera del 50% de la diferencia entre el salario del empleado y la media de su oficio,
+                      update EMPLEADO
+                       set SALARIO=filaemp.SALARIO + 0.5 * (pues.promedio - filaemp.SALARIO)
+                       where filaemp.num_emp=num_emp;
+                       dbms_output.put_line( filaemp.nombre   ||' : '|| filaemp.salario || '   , puesto:   ' || filaemp.puesto );
+                
+                    end if;
+
+
+
+                end loop;
+
+
+
+            close cempleado;
+
+    end loop;
+     close cpuesto;
+
+
+
+end;
+/

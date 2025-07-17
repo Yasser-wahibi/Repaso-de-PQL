@@ -1,0 +1,17 @@
+ACCEPT NUMERO PROMPT 'eSCRIBE UN NUMERO: '
+DECLARE
+    I NUMBER(3) := &NUMERO; 
+BEGIN
+
+    IF I MOD 2 = 0 THEN 
+        WHILE I <= 1000 LOOP
+            DBMS_OUTPUT.PUT_LINE(I);  
+            I := I + 2;
+        END LOOP;
+    ELSE
+        WHILE I <= 1111 LOOP
+            DBMS_OUTPUT.PUT_LINE(I);
+            I := I + 1;
+        END LOOP;
+    END IF;
+END;

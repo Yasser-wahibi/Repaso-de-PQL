@@ -1,0 +1,61 @@
+CREATE OR REPLACE PROCEDURE PTAS(IMPORTE NUMBER) IS
+    resto NUMBER(10);
+BEGIN
+    resto := IMPORTE;
+
+    IF resto >= 5000 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 5000 son: ' || trunc(resto / 5000) || ' billete');
+        resto := resto MOD 5000;
+    END IF;
+
+    IF resto >= 2000 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 2000 son: ' || trunc(resto / 2000) || ' billete');
+        resto := resto MOD 2000;
+    END IF;
+
+    IF resto >= 1000 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 1000 son: ' || trunc(resto / 1000) || ' billetes');
+        resto := resto MOD 1000;
+    END IF;
+
+    IF resto >= 500 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 500 son: ' || trunc(resto / 500) || ' billete');
+        resto := resto MOD 500;
+    END IF;
+
+    IF resto >= 200 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 200 son: ' || trunc(resto / 200) || ' billete');
+        resto := resto MOD 200;
+    END IF;
+
+    IF resto >= 100 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 100 son: ' || trunc(resto / 100) || ' billete');
+        resto := resto MOD 100;
+    END IF;
+
+    IF resto >= 50 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 50 son: ' || trunc(resto / 50) || ' billete');
+        resto := resto MOD 50;
+    END IF;
+
+    IF resto >= 25 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 25 son: ' || trunc(resto / 25) || ' ptas');
+        resto := resto MOD 25;
+    END IF;
+
+    IF resto >= 10 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 10 son: ' || trunc(resto / 10) || '  ptas');
+        resto := resto MOD 10;
+    END IF;
+
+    IF resto >= 5 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 5 son: ' || trunc(resto / 5) || '  ptas');
+        resto := resto MOD 5;
+    END IF;
+
+    IF resto >= 1 THEN
+        DBMS_OUTPUT.PUT_LINE('El cambio de 1 son: ' || resto || '  ptas');
+    END IF;
+
+END;
+/

@@ -1,0 +1,41 @@
+DECLARE
+
+cursor ccliente IS
+    select *
+    from tcliente
+    ;
+
+filacliente ccliente%rowtype;
+
+
+
+BEGIN
+
+    open ccliente;
+        LOOP
+            FETCH ccliente into filacliente;
+            exit when ccliente%notfound;
+           
+    BEGIN
+            if filacliente.provincia not in ('Z ','HU')  then 
+                dbms_output.put_line(filacliente.NOMBRE || ' ES ARAGONES');
+            else
+                RAISE_APPLICATION_ERROR(-20140,'NO ES ARAGONES') ;
+
+            end if;
+        EXCEPTION
+                WHEN OTHERS THEN
+                  DBMS_OUTPUT.PUT_LINE(SQLCODE||' ' ||SUBSTR(SQLERRM,12,100));
+        
+        END;
+        end loop;
+
+
+    close ccliente;
+
+
+
+
+
+end;
+/
